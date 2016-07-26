@@ -98,7 +98,8 @@ class EventLog(models.Model):
                ('log', 'log'),
                ('notified','notified'),
                ('notification_failed', 'notification failed'),
-               ('trigger', 'trigger'))
+               ('trigger', 'trigger'),
+               ('note', 'note'))
 
     @property
     def color(self):
@@ -112,6 +113,7 @@ class EventLog(models.Model):
                        'trigger': 'trigger',
                        'notified': 'success',
                        'notification_failed': 'danger',
+                       'note': 'active',
                        'log': ''}
         return colort_dict[self.action]
 

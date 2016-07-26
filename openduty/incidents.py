@@ -318,3 +318,33 @@ def unsilence(request, incident_id):
         return HttpResponseRedirect(url)
     except Service.DoesNotExist:
         raise Http404
+
+@login_required()
+@require_http_methods(["POST"])
+def add_note(request, incident_id):
+    try:
+        incident = Incident.objects.get(id=incident_id)
+        url = request.POST.get("url")
+        event_log_message = request.POST.get('note')
+        event_log = EventLog()
+        event_log.incident_key = incident
+        event_log.action = 'note'
+        event_log.user = request.user
+        event_log.service_key = incident.service_key
+        event_log.data = event_log_message
+        event_log.occurred_at = timezone.now()
+        event_log.save()
+        incident.save()
+        return HttpResponseRedirect(url)
+    except Service.DoesNotExist:
+        raise Http404
+
+@require_http_methods(["POST"])
+def delete_note(request, event_id):
+    try:
+        url = request.POST.get("url")
+        event_log = EventLog(id=event_id)
+        event_log.delete()
+        return HttpResponseRedirect(url)
+    except Service.DoesNotExist:
+        raise Http404

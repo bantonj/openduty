@@ -75,6 +75,20 @@
                 <button name="event_type" value="resolve" type="submit" class="btn btn-success">Resolve</button>
         </div>
     </form>
+    <div class="form-horizontal" style ="padding-left: 50px;">
+
+           <div class="form-group">
+                   <label class="col-sm-5 control-label">Add Note</label>
+                   <form class="form-horizontal" role="form" id="note_form" method="post" action="{% url 'openduty.incidents.add_note' item.id %}">
+                       <input type="hidden" name="url" value="{{ url }}">
+                       <div class="col-sm-3">
+                           <textarea class="form-control" rows="5" name="note"></textarea>
+                       </div>
+                       {% csrf_token %}
+                       <input type="submit" value="Add Note"  class="btn btn-info">
+                  </form>
+           </div>
+       </div>
      {% if incident_silenced %}
          <div class="form-group" style="text-align: center">
             <form method="post" action="{% url 'openduty.incidents.unsilence' item.id %}">
@@ -117,6 +131,7 @@
            </form>
         </div>
     </div>
+    <label>History</label>
     <table class="table table">
         <thead>
             <tr>
@@ -127,6 +142,7 @@
         </thead>
         <tbody>
             {% for h in history_list %}
+                {% if not h.action == "note" %}
                 <tr class="{{ h.color }}">
                     <td>
                         <div data-toggle="tooltip" data-placement="top" title="{{ h.occurred_at }}">
@@ -136,6 +152,39 @@
                     <td>{{ h.user|default:"system" }}</td>
                     <td>{{ h.action }}</td>
                 </tr>
+                {% endif %}
+            {% endfor %}
+        </tbody>
+    </table>
+    
+    <label>Notes</label>
+    <table class="table table">
+        <thead>
+            <tr>
+                <th>Time</th>
+                <th>User</th>
+                <th>Note</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for h in history_list %}
+                {% if h.action == "note" %}
+                <tr class="{{ h.color }}">
+                    <td>
+                        <div data-toggle="tooltip" data-placement="top" title="{{ h.occurred_at }}">
+                        {{ h.occurred_at|arrowfilter }}
+                        </div>
+                    </td>
+                    <td>{{ h.user|default:"system" }}</td>
+                    <td>{{ h.data }}</td>
+                    <td><form action="{% url 'openduty.incidents.delete_note' h.id %}" method="POST">
+                        <input type="hidden" name="url" value="{{ url }}">
+                        {% csrf_token %}
+                        <button type="submit">Delete</button>
+                    </form></td>
+                </tr>
+                {% endif %}
             {% endfor %}
         </tbody>
     </table>
